@@ -2,13 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "math-game",
+      "name": "smart-kid",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["-y", "serve", "-l", "3210", "."],
       "port": 3210
     },
     {
-      "name": "math-game-old",
+      "name": "smart-kid-old",
       "runtimeExecutable": "npx",
       "runtimeArgs": ["-y", "serve", "-l", "3211", "versions/old"],
       "port": 3211
