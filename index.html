@@ -248,14 +248,14 @@
   @keyframes pulse{from{opacity:.45}to{opacity:1}}
 
   /* בחירת שחקנית */
-  .players{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
-    border-block:1px solid var(--line);margin-bottom:34px}
+  .players{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+    background:var(--line);border-block:1px solid var(--line);margin-bottom:34px}
   .player{
     font-family:inherit;background:var(--bg);border:none;color:var(--ink);
     padding:34px 10px 30px;cursor:pointer;position:relative;overflow:hidden;
     transition:color .35s var(--ease);
   }
-  .player span{display:block;font-size:2.6rem;font-weight:900;letter-spacing:-.03em;
+  .player span{display:block;font-size:clamp(1.9rem,6vw,2.6rem);font-weight:900;letter-spacing:-.03em;
     line-height:1;margin-bottom:10px;transition:transform .45s var(--ease)}
   .player small{font-size:.68rem;font-weight:400;letter-spacing:.2em;color:var(--dim)}
   .player::after{content:'';position:absolute;inset:auto 0 0 0;height:2px;background:var(--m);
@@ -263,13 +263,11 @@
   .player:hover span,.player:focus-visible span{transform:translateY(-4px)}
   .player:hover,.player:focus-visible{color:var(--m);outline:none}
   .player:hover::after,.player:focus-visible::after{transform:scaleX(1)}
-  .player:nth-child(1){--m:#F472B6}
-  .player:nth-child(2){--m:#22D3EE}
 
   /* זהות וניקוד — שכבה נפרדת מהניווט, קבועה בתחתית המסך */
   .bank{
     position:fixed;left:0;right:0;bottom:0;z-index:5;
-    display:flex;justify-content:center;align-items:center;gap:8px;
+    display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;
     padding:12px 16px calc(12px + env(safe-area-inset-bottom));
     background:linear-gradient(to top, rgba(8,8,10,.94) 40%, transparent);
   }
@@ -295,7 +293,7 @@
   .chip:focus-visible{border-color:var(--accent)}
   .chip:disabled{cursor:default}
   .chip[aria-pressed="true"]{
-    opacity:1;color:var(--accent);border-color:color-mix(in oklab, var(--accent) 40%, transparent);
+    opacity:1;color:var(--m);border-color:color-mix(in oklab, var(--m) 40%, transparent);
   }
   .chip[aria-pressed="true"] em{opacity:1;transform:none}
   /* בתוך סבב ובמסך הסיום הצ'יפים הם תצוגה בלבד */
@@ -352,10 +350,7 @@
     <p class="eyebrow">מלכת הלימודים</p>
     <h1>מי<br><em>את?</em></h1>
     <p class="lede">הנקודות נצברות לכל אחת בנפרד.</p>
-    <div class="players">
-      <button class="player" data-player="שני"><span>שני</span><small id="bankShani">0 נקודות</small></button>
-      <button class="player" data-player="אגם"><span>אגם</span><small id="bankAgam">0 נקודות</small></button>
-    </div>
+    <div class="players" id="players"></div>
   </section>
 
   <!-- מסך פתיחה — חשבון -->
@@ -420,12 +415,6 @@
 
 <div class="bank" id="bank" aria-live="off">
   <span class="bank-label">משחקת עכשיו</span>
-  <button class="chip" id="bankRowShani" data-switch="שני" aria-pressed="false">
-    <em></em>שני <b>0</b>
-  </button>
-  <button class="chip" id="bankRowAgam" data-switch="אגם" aria-pressed="false">
-    <em></em>אגם <b>0</b>
-  </button>
 </div>
 
 <script src="words.js"></script>
@@ -438,7 +427,13 @@
   var ACCENT = { mul:'#8B5CF6', add:'#A3E635', sub:'#FB923C', mix:'#22D3EE' };
 
   // ---------- שחקניות וניקוד מצטבר ----------
-  var PLAYERS = ['שני','אגם'];
+  // הוספת שחקנית: שורה כאן + שורה בטבלת scores ב-Supabase. שאר הממשק נבנה מכאן.
+  var PLAYERS = [
+    { name:'שני',   color:'#F472B6' },
+    { name:'אגם',   color:'#22D3EE' },
+    { name:'אוסנת', color:'#FBBF24' }
+  ];
+  var NAMES = PLAYERS.map(function(p){ return p.name; });
   var STORE = 'mathgame.bank.v1';
 
   // Supabase הוא מקור האמת; localStorage הוא מטמון שמאפשר לשחק גם בלי רשת.
@@ -446,14 +441,15 @@
   var SUPA_KEY = 'sb_publishable_rL4hBLsVAX25UpmMCYa14A_W-AFcqzq';
 
   var Bank = (function(){
-    var data = { 'שני':0, 'אגם':0 };
+    var data = {};
+    NAMES.forEach(function(n){ data[n] = 0; });
     var onChange = null;
 
     try{
       var raw = localStorage.getItem(STORE);
       if(raw){
         var p = JSON.parse(raw);
-        PLAYERS.forEach(function(n){ if(typeof p[n] === 'number') data[n] = p[n]; });
+        NAMES.forEach(function(n){ if(typeof p[n] === 'number') data[n] = p[n]; });
       }
     }catch(e){}
 
@@ -472,7 +468,7 @@
         .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
         .then(function(rows){
           rows.forEach(function(row){
-            if(PLAYERS.indexOf(row.player) !== -1) data[row.player] = row.points;
+            if(NAMES.indexOf(row.player) !== -1) data[row.player] = row.points;
           });
           persist();
           if(onChange) onChange();
@@ -650,12 +646,9 @@
   })();
 
   var el = {
-    player: document.getElementById('screen-player'),
-    bank:      document.getElementById('bank'),
-    bankShani: document.getElementById('bankShani'),
-    bankAgam:  document.getElementById('bankAgam'),
-    rowShani:  document.getElementById('bankRowShani'),
-    rowAgam:   document.getElementById('bankRowAgam'),
+    player:  document.getElementById('screen-player'),
+    players: document.getElementById('players'),
+    bank:    document.getElementById('bank'),
     start:  document.getElementById('screen-start'),
     startW: document.getElementById('screen-start-words'),
     game:   document.getElementById('screen-game'),
@@ -737,23 +730,58 @@
     return opts;
   }
 
+  // בניית שני הממשקים מרשימת השחקניות
+  var pickerNodes = {}, chipNodes = {};
+
+  PLAYERS.forEach(function(p){
+    var btn = document.createElement('button');
+    btn.className = 'player';
+    btn.type = 'button';
+    btn.style.setProperty('--m', p.color);
+    btn.innerHTML = '<span>' + p.name + '</span><small></small>';
+    btn.addEventListener('click', function(){ Sound.start(); enterAs(p.name); });
+    btn.addEventListener('mouseenter', function(){ Sound.play('hover'); });
+    el.players.appendChild(btn);
+    pickerNodes[p.name] = btn.querySelector('small');
+
+    var chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.type = 'button';
+    chip.style.setProperty('--m', p.color);
+    chip.addEventListener('click', function(){ Sound.play('hover'); setPlayer(p.name); });
+    el.bank.appendChild(chip);
+    chipNodes[p.name] = chip;
+  });
+
   function renderBank(){
-    el.bankShani.textContent = Bank.get('שני') + ' נקודות';
-    el.bankAgam.textContent  = Bank.get('אגם') + ' נקודות';
     // החלפה מותרת רק ממסך הפתיחה — לא באמצע סבב ולא במסך הסיום
     var canSwitch = state.screen === 'start';
     el.bank.dataset.locked = canSwitch ? 'false' : 'true';
-    [[el.rowShani,'שני'], [el.rowAgam,'אגם']].forEach(function(pair){
-      var node = pair[0], name = pair[1], on = state.player === name;
-      node.innerHTML = '<em></em>' + name + ' <b>' + Bank.get(name) + '</b>';
-      node.setAttribute('aria-pressed', on ? 'true' : 'false');
-      node.disabled = !canSwitch || on;
-      node.setAttribute('aria-label',
-        on ? name + ', משחקת עכשיו'
-           : (canSwitch ? 'מעבר ל' + name : name + ', ניקוד ' + Bank.get(name)));
+    PLAYERS.forEach(function(p){
+      var pts = Bank.get(p.name), on = state.player === p.name;
+      pickerNodes[p.name].textContent = pts + ' נקודות';
+      var chip = chipNodes[p.name];
+      chip.innerHTML = '<em></em>' + p.name + ' <b>' + pts + '</b>';
+      chip.setAttribute('aria-pressed', on ? 'true' : 'false');
+      chip.disabled = !canSwitch || on;
+      chip.setAttribute('aria-label',
+        on ? p.name + ', משחקת עכשיו'
+           : (canSwitch ? 'מעבר ל' + p.name : p.name + ', ניקוד ' + pts));
     });
   }
 
+  // כניסה ראשונה ממסך הבחירה
+  function enterAs(name){
+    state.player = name;
+    state.game = 'math';
+    document.querySelectorAll('[data-game]').forEach(function(o){
+      o.setAttribute('aria-current', o.getAttribute('data-game') === 'math' ? 'true' : 'false');
+    });
+    document.documentElement.style.setProperty('--accent', '#8B5CF6');
+    showScreen('start');
+  }
+
+  // החלפה תוך כדי, מהשורה התחתונה
   function setPlayer(name){
     if(state.player === name) return;
     state.player = name;
@@ -984,20 +1012,6 @@
   }
 
   // ---------- אירועים ----------
-  document.querySelectorAll('[data-player]').forEach(function(b){
-    b.addEventListener('click', function(){
-      Sound.start();
-      state.player = b.getAttribute('data-player');
-      state.game = 'math';
-      document.querySelectorAll('[data-game]').forEach(function(o){
-        o.setAttribute('aria-current', o.getAttribute('data-game') === 'math' ? 'true' : 'false');
-      });
-      document.documentElement.style.setProperty('--accent', '#8B5CF6');
-      showScreen('start');
-    });
-    b.addEventListener('mouseenter', function(){ Sound.play('hover'); });
-  });
-
   var modeButtons = document.querySelectorAll('[data-mode]');
   for(var i=0;i<modeButtons.length;i++){
     (function(b){
@@ -1054,10 +1068,6 @@
       document.documentElement.style.setProperty('--accent', g === 'words' ? '#22D3EE' : '#8B5CF6');
       showScreen('start');
     });
-  });
-
-  document.querySelectorAll('[data-switch]').forEach(function(b){
-    b.addEventListener('click', function(){ Sound.play('hover'); setPlayer(b.getAttribute('data-switch')); });
   });
 
   document.getElementById('btnAgain').addEventListener('click', function(){ Sound.start(); replay(); });
