@@ -6,6 +6,12 @@
       "runtimeExecutable": "npx",
       "runtimeArgs": ["-y", "serve", "-l", "3210", "."],
       "port": 3210
+    },
+    {
+      "name": "math-game-old",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "serve", "-l", "3211", "versions/old"],
+      "port": 3211
     }
   ]
 }

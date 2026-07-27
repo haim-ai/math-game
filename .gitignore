@@ -2,3 +2,10 @@ node_modules/
 .DS_Store
 Thumbs.db
 *.log
+
+# שאריות מניסיון ההקלטה שנזנח — ההקראה עוברת ב-Web Speech
+sound/tts/
+sound/words/
+sound/voices.mp3
+sound/voices.json
+versions/

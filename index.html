@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="משחק לימוד חשבון לילדים – תרגול לוח הכפל, חיבור וחיסור בצורה כיפית עם ניקוד ורצפים.">
 <meta name="theme-color" content="#08080A">
-<title>מלך החשבון – משחק כפל, חיבור וחיסור לילדים</title>
-<link rel="preload" href="fonts/ploni-round-bold-aaa.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="fonts/ploni-round-light-aaa.woff2" as="font" type="font/woff2" crossorigin>
+<title>מלכת החשבון – משחק כפל, חיבור וחיסור לילדים</title>
+<link rel="preload" href="fonts/Polin-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/Polin-Extralight.woff2" as="font" type="font/woff2" crossorigin>
 <style>
   @font-face{
-    font-family:'Ploni';
-    src:url('fonts/ploni-round-light-aaa.woff2') format('woff2');
+    font-family:'Polin';
+    src:url('fonts/Polin-Extralight.woff2') format('woff2');
     font-weight:200 300;
     font-display:swap;
   }
   @font-face{
-    font-family:'Ploni';
-    src:url('fonts/ploni-round-regular-aaa.woff2') format('woff2');
+    font-family:'Polin';
+    src:url('fonts/Polin-Regular.woff2') format('woff2');
     font-weight:400;
     font-display:swap;
   }
   @font-face{
-    font-family:'Ploni';
-    src:url('fonts/ploni-round-bold-aaa.woff2') format('woff2');
+    font-family:'Polin';
+    src:url('fonts/Polin-Bold.woff2') format('woff2');
     font-weight:700 900;
     font-display:swap;
   }
@@ -43,7 +43,7 @@
   html,body{height:100%}
 
   body{
-    font-family:'Ploni', system-ui, sans-serif;
+    font-family:'Polin', system-ui, sans-serif;
     background:var(--bg);
     color:var(--ink);
     min-height:100dvh;
@@ -115,6 +115,10 @@
   .mode:nth-child(2){--m:#A3E635}
   .mode:nth-child(3){--m:#FB923C}
   .mode:nth-child(4){--m:#22D3EE}
+
+  .modes-2{grid-template-columns:1fr 1fr}
+  .modes-2 .mode:nth-child(2){--m:#22D3EE}
+  .modes-2 .mode span{font-size:1.5rem;letter-spacing:.02em;font-weight:400}
 
   .foot{margin-top:34px;font-size:.72rem;letter-spacing:.24em;color:var(--dim)}
 
@@ -199,6 +203,108 @@
 
   @keyframes eq{from{height:3px}to{height:14px}}
 
+  /* תפריט מעבר — פתוח תמיד, שורת קישורים בראש המסך */
+  .switcher{position:fixed;top:16px;right:22px;z-index:6}
+  .switcher ul{list-style:none;display:flex;align-items:center;gap:6px}
+  .switcher li::after{content:'/';color:var(--line);margin-inline-start:6px;font-size:.7rem}
+  .switcher li:last-child::after{content:none}
+  .switcher li button{
+    background:none;border:none;font-family:inherit;color:var(--dim);cursor:pointer;
+    padding:8px 4px;font-size:.7rem;letter-spacing:.18em;white-space:nowrap;
+    transition:color .25s var(--ease);
+  }
+  .switcher li button:hover,.switcher li button:focus-visible{color:var(--ink);outline:none}
+  .switcher li button:focus-visible{outline:1px solid var(--accent);outline-offset:3px}
+  .switcher li button[aria-current="true"]{color:var(--accent)}
+
+  @media (max-width:620px){
+    .switcher{top:12px;right:12px;left:12px}
+    .switcher ul{justify-content:center;flex-wrap:wrap;gap:4px}
+    .switcher li button{font-size:.62rem;letter-spacing:.12em;padding:6px 3px}
+    .sound{top:auto;bottom:44px;left:16px}
+  }
+
+  /* שאלת מילים — טיפוגרפיה שונה מספרות */
+  .question.word{font-size:clamp(2.4rem,9vw,5.2rem);font-weight:700;letter-spacing:-.03em;display:block}
+  .question.word.ltr{direction:ltr}
+  .question.word.rtl{direction:rtl}
+  .answers.word button{font-size:clamp(1.1rem,3.4vw,1.7rem);font-weight:400;letter-spacing:0;
+    padding:26px 14px;line-height:1.3}
+  .answers.word.ltr button{direction:ltr}
+  .answers.word.rtl button{direction:rtl}
+
+  /* כפתור השמעה חוזרת */
+  .replay{
+    display:inline-flex;align-items:center;gap:9px;margin:-34px auto 40px;
+    background:none;border:1px solid var(--line);color:var(--dim);font-family:inherit;
+    font-size:.68rem;letter-spacing:.22em;padding:11px 18px;cursor:pointer;border-radius:999px;
+    transition:color .3s var(--ease),border-color .3s var(--ease);
+  }
+  .replay[hidden]{display:none}
+  .replay svg{width:17px;height:17px;fill:currentColor;stroke:currentColor}
+  .replay:hover,.replay:focus-visible{color:var(--accent);border-color:var(--accent);outline:none}
+  body.speaking .replay{color:var(--accent);border-color:var(--accent)}
+  body.speaking .replay svg{animation:pulse .8s var(--ease) infinite alternate}
+  @keyframes pulse{from{opacity:.45}to{opacity:1}}
+
+  /* בחירת שחקנית */
+  .players{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+    border-block:1px solid var(--line);margin-bottom:34px}
+  .player{
+    font-family:inherit;background:var(--bg);border:none;color:var(--ink);
+    padding:34px 10px 30px;cursor:pointer;position:relative;overflow:hidden;
+    transition:color .35s var(--ease);
+  }
+  .player span{display:block;font-size:2.6rem;font-weight:900;letter-spacing:-.03em;
+    line-height:1;margin-bottom:10px;transition:transform .45s var(--ease)}
+  .player small{font-size:.68rem;font-weight:400;letter-spacing:.2em;color:var(--dim)}
+  .player::after{content:'';position:absolute;inset:auto 0 0 0;height:2px;background:var(--m);
+    transform:scaleX(0);transition:transform .45s var(--ease)}
+  .player:hover span,.player:focus-visible span{transform:translateY(-4px)}
+  .player:hover,.player:focus-visible{color:var(--m);outline:none}
+  .player:hover::after,.player:focus-visible::after{transform:scaleX(1)}
+  .player:nth-child(1){--m:#F472B6}
+  .player:nth-child(2){--m:#22D3EE}
+
+  /* זהות וניקוד — שכבה נפרדת מהניווט, קבועה בתחתית המסך */
+  .bank{
+    position:fixed;left:0;right:0;bottom:0;z-index:5;
+    display:flex;justify-content:center;align-items:center;gap:8px;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(to top, rgba(8,8,10,.94) 40%, transparent);
+  }
+  .bank[hidden]{display:none}
+  .bank-label{
+    font-size:.56rem;letter-spacing:.28em;color:var(--dim);opacity:.6;
+    margin-inline-end:6px;
+  }
+  .chip{
+    font-family:inherit;background:none;cursor:pointer;
+    border:1px solid transparent;border-radius:999px;
+    display:inline-flex;align-items:center;gap:7px;
+    padding:7px 15px;font-size:.66rem;letter-spacing:.16em;
+    color:var(--dim);opacity:.5;
+    transition:opacity .35s var(--ease),color .35s var(--ease),border-color .35s var(--ease);
+  }
+  .chip em{
+    width:5px;height:5px;border-radius:50%;background:currentColor;
+    opacity:0;transform:scale(.4);transition:opacity .35s var(--ease),transform .35s var(--ease);
+  }
+  .chip b{font-weight:700;color:inherit;letter-spacing:.06em}
+  .chip:hover:not(:disabled),.chip:focus-visible{opacity:.85;color:var(--ink);outline:none}
+  .chip:focus-visible{border-color:var(--accent)}
+  .chip:disabled{cursor:default}
+  .chip[aria-pressed="true"]{
+    opacity:1;color:var(--accent);border-color:color-mix(in oklab, var(--accent) 40%, transparent);
+  }
+  .chip[aria-pressed="true"] em{opacity:1;transform:none}
+  /* בתוך סבב ובמסך הסיום הצ'יפים הם תצוגה בלבד */
+  .bank[data-locked="true"] .chip{opacity:.4}
+  .bank[data-locked="true"] .chip[aria-pressed="true"]{opacity:1}
+  .bank[data-locked="true"] .bank-label{opacity:.3}
+
+  .app{padding-bottom:34px}
+
   /* הבזק מסך בתשובה נכונה */
   .flash{position:fixed;inset:0;z-index:2;pointer-events:none;background:var(--accent);opacity:0}
   .flash.on{animation:flash .5s var(--ease)}
@@ -232,13 +338,31 @@
   <i></i><i></i><i></i>
 </button>
 
+<nav class="switcher" id="switcher" aria-label="ניווט">
+  <ul>
+    <li><button data-game="math" aria-current="true">מלכת החשבון</button></li>
+    <li><button data-game="words" aria-current="false">מלכת האנגלית</button></li>
+  </ul>
+</nav>
+
 <main class="app">
 
-  <!-- מסך פתיחה -->
-  <section class="screen" id="screen-start">
+  <!-- בחירת שחקנית -->
+  <section class="screen" id="screen-player">
+    <p class="eyebrow">מי משחקת</p>
+    <h1>מי<br><em>את?</em></h1>
+    <p class="lede">הנקודות נצברות לכל אחת בנפרד.</p>
+    <div class="players">
+      <button class="player" data-player="שני"><span>שני</span><small id="bankShani">0 נקודות</small></button>
+      <button class="player" data-player="אגם"><span>אגם</span><small id="bankAgam">0 נקודות</small></button>
+    </div>
+  </section>
+
+  <!-- מסך פתיחה — חשבון -->
+  <section class="screen" id="screen-start" hidden>
     <p class="eyebrow">תרגול חשבון</p>
-    <h1>מלך<br><em>החשבון</em></h1>
-    <p class="lede">עשר שאלות. רצף מכפיל. בחרו נשק.</p>
+    <h1>מלכת<br><em>החשבון</em></h1>
+    <p class="lede">עשר שאלות. רצף מכפיל. השעון מתקתק.</p>
     <div class="modes">
       <button class="mode" data-mode="mul"><span>×</span><b>כפל</b></button>
       <button class="mode" data-mode="add"><span>+</span><b>חיבור</b></button>
@@ -248,15 +372,31 @@
     <p class="foot">מקשים 1—4 לתשובה מהירה</p>
   </section>
 
+  <!-- מסך פתיחה — אנגלית -->
+  <section class="screen" id="screen-start-words" hidden>
+    <p class="eyebrow">תרגול אנגלית</p>
+    <h1>מלכת<br><em>האנגלית</em></h1>
+    <p class="lede">עשר מילים. רצף מכפיל. השעון מתקתק.</p>
+    <div class="modes modes-2">
+      <button class="mode" data-wmode="he2en"><span>א→A</span><b>עברית לאנגלית</b></button>
+      <button class="mode" data-wmode="en2he"><span>A→א</span><b>אנגלית לעברית</b></button>
+    </div>
+    <p class="foot">מקשים 1—4 לתשובה מהירה</p>
+  </section>
+
   <!-- מסך משחק -->
   <section class="screen" id="screen-game" hidden>
     <div class="hud">
-      <span><b id="qNum">1</b> / <span id="qTotal">10</span></span>
+      <span><b id="qNum">1</b> / <span id="qTotal">10</span> &nbsp;·&nbsp; <b id="clock">0:00</b></span>
       <span class="pips" id="pips" aria-hidden="true"></span>
       <span>ניקוד <b id="score">0</b></span>
     </div>
 
     <div class="question" id="question">7 <s>×</s> 8</div>
+    <button class="replay" id="btnReplay" type="button" hidden aria-label="השמעת המילה שוב">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7" fill="none" stroke-width="2"/><path d="M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke-width="2"/></svg>
+      <span>שמעו שוב</span>
+    </button>
 
     <div class="answers" id="answers"></div>
 
@@ -278,6 +418,17 @@
 
 </main>
 
+<div class="bank" id="bank" aria-live="off">
+  <span class="bank-label">משחקת עכשיו</span>
+  <button class="chip" id="bankRowShani" data-switch="שני" aria-pressed="false">
+    <em></em>שני <b>0</b>
+  </button>
+  <button class="chip" id="bankRowAgam" data-switch="אגם" aria-pressed="false">
+    <em></em>אגם <b>0</b>
+  </button>
+</div>
+
+<script src="words.js"></script>
 <script>
 (function(){
   'use strict';
@@ -286,10 +437,97 @@
   var SIGN   = { mul:'×', add:'+', sub:'−' };
   var ACCENT = { mul:'#8B5CF6', add:'#A3E635', sub:'#FB923C', mix:'#22D3EE' };
 
+  // ---------- שחקניות וניקוד מצטבר ----------
+  var PLAYERS = ['שני','אגם'];
+  var STORE = 'mathgame.bank.v1';
+
+  // Supabase הוא מקור האמת; localStorage הוא מטמון שמאפשר לשחק גם בלי רשת.
+  var SUPA_URL = 'https://sgqccebnzmfcncwppyjb.supabase.co';
+  var SUPA_KEY = 'sb_publishable_rL4hBLsVAX25UpmMCYa14A_W-AFcqzq';
+
+  var Bank = (function(){
+    var data = { 'שני':0, 'אגם':0 };
+    var onChange = null;
+
+    try{
+      var raw = localStorage.getItem(STORE);
+      if(raw){
+        var p = JSON.parse(raw);
+        PLAYERS.forEach(function(n){ if(typeof p[n] === 'number') data[n] = p[n]; });
+      }
+    }catch(e){}
+
+    function persist(){
+      try{ localStorage.setItem(STORE, JSON.stringify(data)); }catch(e){}
+    }
+
+    function headers(extra){
+      var h = { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY };
+      if(extra) for(var k in extra) h[k] = extra[k];
+      return h;
+    }
+
+    function pull(){
+      return fetch(SUPA_URL + '/rest/v1/scores?select=player,points', { headers: headers() })
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(rows){
+          rows.forEach(function(row){
+            if(PLAYERS.indexOf(row.player) !== -1) data[row.player] = row.points;
+          });
+          persist();
+          if(onChange) onChange();
+        })
+        .catch(function(){ /* אופליין — נשארים עם המטמון */ });
+    }
+
+    return {
+      get: function(name){ return data[name] || 0; },
+      onChange: function(fn){ onChange = fn; },
+      sync: pull,
+      add: function(name, points){
+        // מעדכנים מיד מקומית כדי שהמסך יגיב, ומיישרים מול השרת כשהוא עונה
+        data[name] = (data[name] || 0) + points;
+        persist();
+        if(onChange) onChange();
+        fetch(SUPA_URL + '/rest/v1/rpc/add_points', {
+          method: 'POST',
+          headers: headers({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ p_player: name, p_points: points })
+        })
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(total){
+          if(typeof total === 'number'){ data[name] = total; persist(); if(onChange) onChange(); }
+        })
+        .catch(function(){ /* נשאר מקומי; יסונכרן בכניסה הבאה */ });
+      }
+    };
+  })();
+
   var state = {
-    mode:'mul', index:0, score:0, correct:0, streak:0,
-    current:null, seen:null, locked:false
+    player:null, screen:'player',
+    game:'math', mode:'mul', index:0, score:0, correct:0, streak:0,
+    current:null, seen:null, locked:false,
+    t0:0, elapsed:0, ticker:null
   };
+
+  function fmt(ms){
+    var s = Math.floor(ms/1000);
+    return Math.floor(s/60) + ':' + ('0' + (s%60)).slice(-2);
+  }
+
+  function clockStart(){
+    state.t0 = performance.now();
+    clearInterval(state.ticker);
+    state.ticker = setInterval(function(){
+      el.clock.textContent = fmt(performance.now() - state.t0);
+    }, 250);
+  }
+
+  function clockStop(){
+    clearInterval(state.ticker);
+    state.ticker = null;
+    state.elapsed = performance.now() - state.t0;
+  }
 
   // ---------- אודיו ----------
   var Sound = (function(){
@@ -330,6 +568,51 @@
       })(t0);
     }
 
+    // ---- הקראה באנגלית: sprite מוקלט, עם נפילה ל-Web Speech ----
+    var sprite = null, spriteMap = null, spriteStop = null;
+
+    // ה-sprite מנוטרל: הפיצול האוטומטי לפי שתיקות יצר היסטים (sand השמיע sandals).
+    // עד שתהיה הקלטה מאומתת מילה-מילה, ההקראה עוברת ב-Web Speech שתמיד מדויק.
+    var USE_SPRITE = false;
+    if(USE_SPRITE){
+      sprite = new Audio('sound/voices.mp3');
+      sprite.preload = 'auto';
+      fetch('sound/voices.json')
+        .then(function(r){ return r.json(); })
+        .then(function(j){ spriteMap = j; })
+        .catch(function(){ spriteMap = {}; });
+    }
+
+    function playSprite(word){
+      var seg = sprite && spriteMap && spriteMap[word];
+      if(!seg) return false;
+      clearTimeout(spriteStop);
+      sprite.currentTime = seg[0];
+      var p = sprite.play();
+      if(p && p.catch) p.catch(function(){});
+      document.body.classList.add('speaking');
+      spriteStop = setTimeout(function(){
+        sprite.pause();
+        document.body.classList.remove('speaking');
+      }, seg[1] * 1000 + 60);
+      return true;
+    }
+
+    var synth = window.speechSynthesis, voice = null;
+
+    function pickVoice(){
+      if(!synth) return;
+      var all = synth.getVoices().filter(function(v){ return /^en(-|_)/i.test(v.lang); });
+      if(!all.length) return;
+      // מעדיפים קול נשי; רשימת ההעדפות מכסה Windows, macOS ו-Chrome
+      var wanted = /female|zira|samantha|aria|jenny|michelle|karen|moira|tessa|google us english/i;
+      voice = all.filter(function(v){ return wanted.test(v.name); })[0] || all[0];
+    }
+    if(synth){
+      pickVoice();
+      synth.addEventListener('voiceschanged', pickVoice);
+    }
+
     return {
       start: function(){
         if(started || !on) return;
@@ -337,9 +620,29 @@
         music.play().then(function(){ fade(.28, 1800); }).catch(function(){ started = false; });
       },
       play: function(name){ if(sfx[name]) sfx[name](); },
+      speak: function(text){
+        if(!on || !text) return;
+        if(playSprite(text)) return;
+        if(!synth) return;
+        synth.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        u.pitch = 1.05;
+        if(voice) u.voice = voice;
+        u.onstart = function(){ document.body.classList.add('speaking'); };
+        u.onend = u.onerror = function(){ document.body.classList.remove('speaking'); };
+        synth.speak(u);
+      },
+      canSpeak: function(){ return !!(synth || spriteMap); },
       toggle: function(){
         on = !on;
-        if(!on){ music.pause(); }
+        if(!on){
+          music.pause();
+          if(synth) synth.cancel();
+          clearTimeout(spriteStop); if(sprite) sprite.pause();
+          document.body.classList.remove('speaking');
+        }
         else if(started){ music.play().catch(function(){}); }
         return on;
       }
@@ -347,10 +650,18 @@
   })();
 
   var el = {
+    player: document.getElementById('screen-player'),
+    bank:      document.getElementById('bank'),
+    bankShani: document.getElementById('bankShani'),
+    bankAgam:  document.getElementById('bankAgam'),
+    rowShani:  document.getElementById('bankRowShani'),
+    rowAgam:   document.getElementById('bankRowAgam'),
     start:  document.getElementById('screen-start'),
+    startW: document.getElementById('screen-start-words'),
     game:   document.getElementById('screen-game'),
     end:    document.getElementById('screen-end'),
     qNum:   document.getElementById('qNum'),
+    clock:  document.getElementById('clock'),
     qTotal: document.getElementById('qTotal'),
     score:  document.getElementById('score'),
     pips:   document.getElementById('pips'),
@@ -359,6 +670,7 @@
     answers:  document.getElementById('answers'),
     feedback: document.getElementById('feedback'),
     flash:    document.getElementById('flash'),
+    replay:   document.getElementById('btnReplay'),
     finalScore: document.getElementById('finalScore'),
     finalStats: document.getElementById('finalStats'),
     endTitle:   document.getElementById('endTitle')
@@ -425,13 +737,80 @@
     return opts;
   }
 
+  function renderBank(){
+    el.bankShani.textContent = Bank.get('שני') + ' נקודות';
+    el.bankAgam.textContent  = Bank.get('אגם') + ' נקודות';
+    // החלפה מותרת רק ממסך הפתיחה — לא באמצע סבב ולא במסך הסיום
+    var canSwitch = state.screen === 'start';
+    el.bank.dataset.locked = canSwitch ? 'false' : 'true';
+    [[el.rowShani,'שני'], [el.rowAgam,'אגם']].forEach(function(pair){
+      var node = pair[0], name = pair[1], on = state.player === name;
+      node.innerHTML = '<em></em>' + name + ' <b>' + Bank.get(name) + '</b>';
+      node.setAttribute('aria-pressed', on ? 'true' : 'false');
+      node.disabled = !canSwitch || on;
+      node.setAttribute('aria-label',
+        on ? name + ', משחקת עכשיו'
+           : (canSwitch ? 'מעבר ל' + name : name + ', ניקוד ' + Bank.get(name)));
+    });
+  }
+
+  function setPlayer(name){
+    if(state.player === name) return;
+    state.player = name;
+    state.locked = true;
+    clockStop();
+    renderBank();
+    showScreen('start');
+  }
+
   function showScreen(name){
-    el.start.hidden = name !== 'start';
-    el.game.hidden  = name !== 'game';
-    el.end.hidden   = name !== 'end';
+    state.screen = name;
+    var isStart = name === 'start';
+    el.player.hidden = name !== 'player';
+    el.start.hidden  = !(isStart && state.game === 'math');
+    el.startW.hidden = !(isStart && state.game === 'words');
+    el.game.hidden   = name !== 'game';
+    el.end.hidden    = name !== 'end';
+    el.bank.hidden   = name === 'player';
+    renderBank();
+  }
+
+  // ---------- מאגר המילים ----------
+  var THEMES = Object.keys(WORDS);
+
+  function makeWordQuestion(wmode){
+    var theme = THEMES[rnd(0, THEMES.length-1)];
+    var list  = WORDS[theme];
+    if(list.length < 4) return makeWordQuestion(wmode);
+
+    var i = rnd(0, list.length-1);
+    var pair = list[i];
+    // he2en: מוצג עברית, עונים אנגלית. en2he: הפוך.
+    var promptIdx = wmode === 'he2en' ? 0 : 1;
+    var answerIdx = 1 - promptIdx;
+
+    var opts = [pair[answerIdx]];
+    var guard = 0;
+    while(opts.length < 4 && guard++ < 200){
+      var c = list[rnd(0, list.length-1)][answerIdx];
+      if(opts.indexOf(c) === -1) opts.push(c);
+    }
+    for(var m=opts.length-1;m>0;m--){
+      var n = rnd(0,m), t = opts[m]; opts[m] = opts[n]; opts[n] = t;
+    }
+
+    return {
+      key: theme + '|' + i,
+      prompt: pair[promptIdx],
+      answer: pair[answerIdx],
+      options: opts,
+      promptDir: promptIdx === 0 ? 'rtl' : 'ltr',
+      answerDir: answerIdx === 0 ? 'rtl' : 'ltr'
+    };
   }
 
   function startGame(mode){
+    state.game = 'math';
     state.mode = mode;
     state.index = 0;
     state.score = 0;
@@ -440,23 +819,34 @@
     state.seen = {};
     setAccent(mode);
     el.score.textContent = '0';
+    el.clock.textContent = '0:00';
     updateStreak();
     showScreen('game');
+    clockStart();
     nextQuestion();
   }
 
   function nextQuestion(){
     if(state.index >= TOTAL){ endGame(); return; }
 
-    var ex, key, tries = 0;
+    var q, tries = 0;
     do{
-      ex = makeExercise(state.mode);
-      key = ex.a + ex.op + ex.b;
+      q = state.game === 'words'
+        ? makeWordQuestion(state.mode)
+        : (function(){
+            var ex = makeExercise(state.mode);
+            return {
+              key: ex.a + ex.op + ex.b,
+              html: '<u>'+ex.a+'</u><s>'+SIGN[ex.op]+'</s><u>'+ex.b+'</u>',
+              answer: ex.answer,
+              options: buildOptions(ex)
+            };
+          })();
       tries++;
-    } while(state.seen[key] && tries < 50);
-    state.seen[key] = true;
+    } while(state.seen[q.key] && tries < 60);
+    state.seen[q.key] = true;
 
-    state.current = ex;
+    state.current = q;
     state.locked = false;
     state.index++;
 
@@ -464,18 +854,38 @@
     el.progress.style.width = ((state.index-1)/TOTAL*100) + '%';
     el.feedback.textContent = '';
     el.feedback.className = 'feedback';
-    el.question.className = 'question';
-    el.question.innerHTML = '<u>'+ex.a+'</u><s>'+SIGN[ex.op]+'</s><u>'+ex.b+'</u>';
+
+    // en2he: המילה הגדולה באנגלית — מקריאים אותה, ומאפשרים לשמוע שוב
+    var speakPrompt = state.game === 'words' && state.mode === 'en2he';
+    // he2en: האפשרויות באנגלית — מקריאים אותן במעבר עכבר במקום צליל
+    var speakOptions = state.game === 'words' && state.mode === 'he2en';
+
+    el.replay.hidden = !(speakPrompt && Sound.canSpeak());
+
+    if(state.game === 'words'){
+      el.question.className = 'question word ' + q.promptDir;
+      el.question.textContent = q.prompt;
+      el.answers.className = 'answers word ' + q.answerDir;
+    }else{
+      el.question.className = 'question';
+      el.question.innerHTML = q.html;
+      el.answers.className = 'answers';
+    }
 
     el.answers.innerHTML = '';
-    buildOptions(ex).forEach(function(value){
+    q.options.forEach(function(value){
       var btn = document.createElement('button');
       btn.type = 'button';
       btn.textContent = value;
       btn.addEventListener('click', function(){ answer(btn, value); });
-      btn.addEventListener('mouseenter', function(){ if(!state.locked) Sound.play('hover'); });
+      btn.addEventListener('mouseenter', function(){
+        if(state.locked) return;
+        if(speakOptions) Sound.speak(value); else Sound.play('hover');
+      });
       el.answers.appendChild(btn);
     });
+
+    if(speakPrompt) setTimeout(function(){ Sound.speak(q.prompt); }, 320);
   }
 
   function updateStreak(){
@@ -495,7 +905,7 @@
 
     for(var i=0;i<buttons.length;i++){
       buttons[i].disabled = true;
-      if(Number(buttons[i].textContent) === state.current.answer) buttons[i].classList.add('good');
+      if(buttons[i].textContent === String(state.current.answer)) buttons[i].classList.add('good');
     }
 
     if(right){
@@ -516,12 +926,34 @@
       el.question.classList.add('shake');
       el.feedback.className = 'feedback bad';
       el.feedback.textContent = 'התשובה — ' + state.current.answer;
+      el.feedback.dir = state.game === 'words' ? 'auto' : 'rtl';
       Sound.play('error');
     }
 
     updateStreak();
     el.progress.style.width = (state.index/TOTAL*100) + '%';
     setTimeout(nextQuestion, right ? 850 : 1500);
+  }
+
+  function startWords(wmode){
+    state.game = 'words';
+    state.mode = wmode;
+    state.index = 0;
+    state.score = 0;
+    state.correct = 0;
+    state.streak = 0;
+    state.seen = {};
+    document.documentElement.style.setProperty('--accent', wmode === 'he2en' ? '#8B5CF6' : '#22D3EE');
+    el.score.textContent = '0';
+    el.clock.textContent = '0:00';
+    updateStreak();
+    showScreen('game');
+    clockStart();
+    nextQuestion();
+  }
+
+  function replay(){
+    if(state.game === 'words') startWords(state.mode); else startGame(state.mode);
   }
 
   function countUp(target){
@@ -535,8 +967,10 @@
   }
 
   function endGame(){
+    clockStop();
+    if(state.player && state.score > 0){ Bank.add(state.player, state.score); }
     var pct = state.correct / TOTAL;
-    el.finalStats.textContent = state.correct + ' / ' + TOTAL + ' נכונות';
+    el.finalStats.textContent = state.correct + ' / ' + TOTAL + ' נכונות  ·  ' + fmt(state.elapsed);
 
     if(pct === 1)       el.endTitle.textContent = 'מושלם. בלי טעות אחת.';
     else if(pct >= 0.8) el.endTitle.textContent = 'כמעט מושלם.';
@@ -546,9 +980,24 @@
     showScreen('end');
     el.finalScore.textContent = '0';
     countUp(state.score);
+    renderBank();
   }
 
   // ---------- אירועים ----------
+  document.querySelectorAll('[data-player]').forEach(function(b){
+    b.addEventListener('click', function(){
+      Sound.start();
+      state.player = b.getAttribute('data-player');
+      state.game = 'math';
+      document.querySelectorAll('[data-game]').forEach(function(o){
+        o.setAttribute('aria-current', o.getAttribute('data-game') === 'math' ? 'true' : 'false');
+      });
+      document.documentElement.style.setProperty('--accent', '#8B5CF6');
+      showScreen('start');
+    });
+    b.addEventListener('mouseenter', function(){ Sound.play('hover'); });
+  });
+
   var modeButtons = document.querySelectorAll('[data-mode]');
   for(var i=0;i<modeButtons.length;i++){
     (function(b){
@@ -574,9 +1023,46 @@
     btnSound.setAttribute('aria-label', on ? 'כיבוי צליל' : 'הפעלת צליל');
   });
 
-  document.getElementById('btnAgain').addEventListener('click', function(){ Sound.start(); startGame(state.mode); });
+  el.replay.addEventListener('click', function(){
+    if(state.current && state.current.prompt) Sound.speak(state.current.prompt);
+  });
+  var wmodeButtons = document.querySelectorAll('[data-wmode]');
+  for(var w=0;w<wmodeButtons.length;w++){
+    (function(b){
+      var m = b.getAttribute('data-wmode');
+      b.addEventListener('click', function(){ Sound.start(); startWords(m); });
+      b.addEventListener('mouseenter', function(){
+        document.documentElement.style.setProperty('--accent', m === 'he2en' ? '#8B5CF6' : '#22D3EE');
+        Sound.play('hover');
+      });
+    })(wmodeButtons[w]);
+  }
+
+  // ---------- תפריט מעבר בין משחקים ----------
+  var gameNames = { math:'מלכת החשבון', words:'מלכת האנגלית' };
+
+  document.querySelectorAll('[data-game]').forEach(function(b){
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      var g = b.getAttribute('data-game');
+      state.game = g;
+      state.locked = true;
+      clockStop();
+      document.querySelectorAll('[data-game]').forEach(function(o){
+        o.setAttribute('aria-current', o === b ? 'true' : 'false');
+      });
+      document.documentElement.style.setProperty('--accent', g === 'words' ? '#22D3EE' : '#8B5CF6');
+      showScreen('start');
+    });
+  });
+
+  document.querySelectorAll('[data-switch]').forEach(function(b){
+    b.addEventListener('click', function(){ Sound.play('hover'); setPlayer(b.getAttribute('data-switch')); });
+  });
+
+  document.getElementById('btnAgain').addEventListener('click', function(){ Sound.start(); replay(); });
   document.getElementById('btnMenu').addEventListener('click', function(){ showScreen('start'); });
-  document.getElementById('btnQuit').addEventListener('click', function(){ state.locked = true; showScreen('start'); });
+  document.getElementById('btnQuit').addEventListener('click', function(){ state.locked = true; clockStop(); showScreen('start'); });
 
   document.addEventListener('keydown', function(e){
     if(el.game.hidden || state.locked) return;
@@ -586,6 +1072,10 @@
       if(b) b.click();
     }
   });
+
+  Bank.onChange(renderBank);
+  showScreen('player');
+  Bank.sync();
 
 })();
 </script>
