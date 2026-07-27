@@ -142,13 +142,12 @@
     transition:color .5s var(--ease);animation:flip .55s var(--ease) .06s both}
   .question.shake{animation:shake .5s var(--ease)}
 
-  .answers{display:grid;grid-template-columns:1fr 1fr;
-    border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .answers{display:flex;flex-direction:column;border-top:1px solid var(--line)}
   .answers button{
     font-family:inherit;background:transparent;color:var(--ink);cursor:pointer;
-    border:none;border-bottom:1px solid var(--line);border-right:1px solid var(--line);
-    font-size:clamp(2.2rem,7vw,3.4rem);font-weight:200;letter-spacing:-.03em;
-    padding:34px 10px;direction:ltr;position:relative;overflow:hidden;
+    border:none;border-bottom:1px solid var(--line);
+    font-size:clamp(1.9rem,5.5vw,2.8rem);font-weight:200;letter-spacing:-.03em;
+    padding:22px 10px;direction:ltr;position:relative;overflow:hidden;
     transition:color .3s var(--ease),background .3s var(--ease),font-weight .2s;
   }
   .answers button::before{content:'';position:absolute;inset:0;background:var(--accent);
@@ -221,7 +220,11 @@
     .switcher{top:12px;right:12px;left:12px}
     .switcher ul{justify-content:center;flex-wrap:wrap;gap:4px}
     .switcher li button{font-size:.62rem;letter-spacing:.12em;padding:6px 3px}
-    .sound{top:auto;bottom:44px;left:16px}
+    .sound{top:12px;bottom:auto;left:12px}
+    /* שלושה צ'יפים חייבים להיכנס בשורה אחת */
+    .bank{gap:4px;flex-wrap:nowrap;padding-inline:10px}
+    .bank-label{display:none}
+    .chip{padding:6px 10px;font-size:.6rem;letter-spacing:.08em;gap:5px}
   }
 
   /* שאלת מילים — טיפוגרפיה שונה מספרות */
@@ -229,7 +232,7 @@
   .question.word.ltr{direction:ltr}
   .question.word.rtl{direction:rtl}
   .answers.word button{font-size:clamp(1.1rem,3.4vw,1.7rem);font-weight:400;letter-spacing:0;
-    padding:26px 14px;line-height:1.3}
+    padding:18px 14px;line-height:1.3}
   .answers.word.ltr button{direction:ltr}
   .answers.word.rtl button{direction:rtl}
 
@@ -316,8 +319,8 @@
 
   @media (max-width:560px){
     .modes{grid-template-columns:1fr 1fr}
-    .question{margin-bottom:38px}
-    .answers button{padding:26px 8px}
+    .question{margin-bottom:30px}
+    .answers button{padding:18px 8px}
   }
 
   @media (prefers-reduced-motion:reduce){
