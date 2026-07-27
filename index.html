@@ -126,6 +126,7 @@
   .hud{display:flex;justify-content:space-between;align-items:center;
     font-size:.7rem;letter-spacing:.28em;color:var(--dim);margin-bottom:44px}
   .hud b{color:var(--ink);font-weight:700}
+  .lvl b{color:var(--accent);transition:color .5s var(--ease)}
 
   .pips{display:flex;gap:5px}
   .pips i{width:16px;height:2px;background:var(--line);transition:all .4s var(--ease)}
@@ -386,6 +387,7 @@
   <section class="screen" id="screen-game" hidden>
     <div class="hud">
       <span><b id="qNum">1</b> / <span id="qTotal">10</span> &nbsp;·&nbsp; <b id="clock">0:00</b></span>
+      <span class="lvl">רמה <b id="level">1</b></span>
       <span class="pips" id="pips" aria-hidden="true"></span>
       <span>ניקוד <b id="score">0</b></span>
     </div>
@@ -409,7 +411,7 @@
     <p class="verdict" id="endTitle">כל הכבוד</p>
     <p class="tally" id="finalStats">0 / 10</p>
     <div class="end-actions">
-      <button id="btnAgain">שוב</button>
+      <button id="btnAgain">המשך</button>
       <button id="btnMenu">תפריט</button>
     </div>
   </section>
@@ -444,20 +446,30 @@
   var SUPA_KEY = 'sb_publishable_rL4hBLsVAX25UpmMCYa14A_W-AFcqzq';
 
   var Bank = (function(){
-    var data = {};
-    NAMES.forEach(function(n){ data[n] = 0; });
+    var data = {}, levels = {};
+    NAMES.forEach(function(n){ data[n] = 0; levels[n] = {}; });
     var onChange = null;
 
     try{
       var raw = localStorage.getItem(STORE);
       if(raw){
         var p = JSON.parse(raw);
-        NAMES.forEach(function(n){ if(typeof p[n] === 'number') data[n] = p[n]; });
+        NAMES.forEach(function(n){
+          if(typeof p[n] === 'number') data[n] = p[n];
+          else if(p[n] && typeof p[n] === 'object'){
+            if(typeof p[n].points === 'number') data[n] = p[n].points;
+            if(p[n].levels) levels[n] = p[n].levels;
+          }
+        });
+        if(p.__levels) NAMES.forEach(function(n){ if(p.__levels[n]) levels[n] = p.__levels[n]; });
       }
     }catch(e){}
 
     function persist(){
-      try{ localStorage.setItem(STORE, JSON.stringify(data)); }catch(e){}
+      var out = {};
+      NAMES.forEach(function(n){ out[n] = data[n]; });
+      out.__levels = levels;
+      try{ localStorage.setItem(STORE, JSON.stringify(out)); }catch(e){}
     }
 
     function headers(extra){
@@ -467,11 +479,13 @@
     }
 
     function pull(){
-      return fetch(SUPA_URL + '/rest/v1/scores?select=player,points', { headers: headers() })
+      return fetch(SUPA_URL + '/rest/v1/scores?select=player,points,levels', { headers: headers() })
         .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
         .then(function(rows){
           rows.forEach(function(row){
-            if(NAMES.indexOf(row.player) !== -1) data[row.player] = row.points;
+            if(NAMES.indexOf(row.player) === -1) return;
+            data[row.player] = row.points;
+            if(row.levels && typeof row.levels === 'object') levels[row.player] = row.levels;
           });
           persist();
           if(onChange) onChange();
@@ -479,10 +493,37 @@
         .catch(function(){ /* אופליין — נשארים עם המטמון */ });
     }
 
+    var levelTimer = null, levelQueue = {};
+
     return {
       get: function(name){ return data[name] || 0; },
       onChange: function(fn){ onChange = fn; },
       sync: pull,
+
+      getLevel: function(name, key){
+        var v = levels[name] && levels[name][key];
+        return typeof v === 'number' ? Math.min(Math.max(v,1),8) : 1;
+      },
+      setLevel: function(name, key, level){
+        if(!levels[name]) levels[name] = {};
+        levels[name][key] = level;
+        persist();
+        // הרמה משתנה אחרי כל שאלה; שולחים לשרת בהשהיה כדי לא להציף אותו
+        levelQueue[name + '|' + key] = { name:name, key:key, level:level };
+        clearTimeout(levelTimer);
+        levelTimer = setTimeout(function(){
+          var pending = levelQueue; levelQueue = {};
+          Object.keys(pending).forEach(function(k){
+            var it = pending[k];
+            fetch(SUPA_URL + '/rest/v1/rpc/set_level', {
+              method: 'POST',
+              headers: headers({ 'Content-Type': 'application/json' }),
+              body: JSON.stringify({ p_player: it.name, p_key: it.key, p_level: it.level })
+            }).catch(function(){});
+          });
+        }, 1200);
+      },
+
       add: function(name, points){
         // מעדכנים מיד מקומית כדי שהמסך יגיב, ומיישרים מול השרת כשהוא עונה
         data[name] = (data[name] || 0) + points;
@@ -506,8 +547,26 @@
     player:null, screen:'player',
     game:'math', mode:'mul', index:0, score:0, correct:0, streak:0,
     current:null, seen:null, locked:false,
+    level:1, startLevel:1, topLevel:1,
     t0:0, elapsed:0, ticker:null
   };
+
+  // מפתח הרמה: משחק ומצב. רמה בכפל אינה רמה בחיבור.
+  function levelKey(){ return (state.game === 'words' ? 'w_' : 'm_') + state.mode; }
+
+  function loadLevel(){
+    state.level = state.player ? Bank.getLevel(state.player, levelKey()) : 1;
+    state.startLevel = state.level;
+    state.topLevel = state.level;
+  }
+
+  function bumpLevel(right){
+    var next = Math.min(Math.max(state.level + (right ? 1 : -1), MIN_LEVEL), MAX_LEVEL);
+    if(next === state.level) return;
+    state.level = next;
+    if(next > state.topLevel) state.topLevel = next;
+    if(state.player) Bank.setLevel(state.player, levelKey(), next);
+  }
 
   function fmt(ms){
     var s = Math.floor(ms/1000);
@@ -658,6 +717,7 @@
     end:    document.getElementById('screen-end'),
     qNum:   document.getElementById('qNum'),
     clock:  document.getElementById('clock'),
+    level:  document.getElementById('level'),
     qTotal: document.getElementById('qTotal'),
     score:  document.getElementById('score'),
     pips:   document.getElementById('pips'),
@@ -682,21 +742,44 @@
     document.documentElement.style.setProperty('--accent', ACCENT[mode] || ACCENT.mul);
   }
 
-  function makeExercise(mode){
-    var a,b;
+  // ---------- סולמות קושי ----------
+  var MIN_LEVEL = 1, MAX_LEVEL = 8;
+
+  // כפל: מתחילים בלוחות שילדים קולטים ראשונים (2,5,10) ומרחיבים משם
+  var MUL_STEPS = [
+    { tables:[2,5,10],                 by:[1,5]  },
+    { tables:[2,5,10],                 by:[1,10] },
+    { tables:[2,3,4,5,10],             by:[2,10] },
+    { tables:[2,3,4,5,6,10],           by:[2,10] },
+    { tables:[3,4,6,7,8,9],            by:[2,10] },
+    { tables:[4,6,7,8,9],              by:[3,10] },
+    { tables:[6,7,8,9,11,12],          by:[3,12] },
+    { tables:[7,8,9,11,12],            by:[6,12] }
+  ];
+  // חיבור וחיסור: הטווח גדל, והמעבר לעשרות נכנס רק בשלב מאוחר
+  var ADD_STEPS = [[1,5],[1,10],[2,20],[5,40],[10,60],[10,90],[20,150],[50,400]];
+  var SUB_STEPS = [[2,10],[2,20],[5,30],[10,50],[10,80],[20,120],[30,200],[50,500]];
+
+  function makeExercise(mode, level){
+    var a, b, i = Math.min(Math.max(level,MIN_LEVEL), MAX_LEVEL) - 1;
     if(mode === 'mix'){ mode = ['mul','add','sub'][rnd(0,2)]; }
 
     if(mode === 'mul'){
-      a = rnd(2,10); b = rnd(2,10);
+      var s = MUL_STEPS[i];
+      a = s.tables[rnd(0, s.tables.length-1)];
+      b = rnd(s.by[0], s.by[1]);
+      if(rnd(0,1)) { var t = a; a = b; b = t; }   // גם 4×7 וגם 7×4
       return { a:a, b:b, op:'mul', answer:a*b };
     }
     if(mode === 'add'){
-      a = rnd(1,50);
-      b = rnd(1, Math.min(50, 100-a));
+      var r = ADD_STEPS[i];
+      a = rnd(r[0], r[1]);
+      b = rnd(r[0], r[1]);
       return { a:a, b:b, op:'add', answer:a+b };
     }
-    a = rnd(10,100);
-    b = rnd(1,a);
+    var q = SUB_STEPS[i];
+    a = rnd(q[0]+1, q[1]);
+    b = rnd(1, a);                                 // התוצאה לעולם לא שלילית
     return { a:a, b:b, op:'sub', answer:a-b };
   }
 
@@ -809,10 +892,42 @@
   // ---------- מאגר המילים ----------
   var THEMES = Object.keys(WORDS);
 
-  function makeWordQuestion(wmode){
-    var theme = THEMES[rnd(0, THEMES.length-1)];
+  // דירוג נושאים מהמוחשי למופשט. זה מה שקובע אילו מילים נכנסות בכל רמה.
+  var THEME_TIER = {
+    'חיות':1, 'אוכל':1, 'צבעים וצורות':1, 'משפחה ואנשים':1, 'גוף':1,
+    'בית':2, 'ביגוד':2, 'בית ספר':2, 'זמן':2, 'מקומות בעיר':2,
+    'טבע ומזג אוויר':3, 'תחבורה':3, 'ספורט ומשחקים':3, 'מקצועות':3, 'מילים שימושיות':3,
+    'פעלים':4, 'שמות תואר':4, 'רגשות':4, 'טכנולוגיה':4, 'אומנות ומוזיקה':4,
+    'מילות יחס וכיוון':5, 'מדע וחלל':5, 'כסף וקניות':5, 'בריאות ורפואה':5, 'חגים ומסורת':5
+  };
+  // לכל רמה: עד איזה דירוג נושאים, והאם המסיחים מגיעים מאותו נושא.
+  // מסיח מנושא אחר קל לפסול; מסיח מאותו נושא מחייב להכיר את המילה.
+  var WORD_STEPS = [
+    { maxTier:1, sameTheme:false }, { maxTier:1, sameTheme:true },
+    { maxTier:2, sameTheme:false }, { maxTier:2, sameTheme:true },
+    { maxTier:3, sameTheme:true },  { maxTier:4, sameTheme:true },
+    { maxTier:5, sameTheme:true },  { maxTier:5, sameTheme:true }
+  ];
+
+  var THEMES_BY_TIER = {};
+  THEMES.forEach(function(t){
+    var tier = THEME_TIER[t] || 5;
+    (THEMES_BY_TIER[tier] = THEMES_BY_TIER[tier] || []).push(t);
+  });
+
+  function themesUpTo(maxTier){
+    var out = [];
+    for(var t=1;t<=maxTier;t++) if(THEMES_BY_TIER[t]) out = out.concat(THEMES_BY_TIER[t]);
+    return out;
+  }
+
+  function makeWordQuestion(wmode, level){
+    var step = WORD_STEPS[Math.min(Math.max(level,MIN_LEVEL), MAX_LEVEL) - 1];
+    var pool = themesUpTo(step.maxTier);
+
+    var theme = pool[rnd(0, pool.length-1)];
     var list  = WORDS[theme];
-    if(list.length < 4) return makeWordQuestion(wmode);
+    if(list.length < 4) return makeWordQuestion(wmode, level);
 
     var i = rnd(0, list.length-1);
     var pair = list[i];
@@ -822,10 +937,22 @@
 
     var opts = [pair[answerIdx]];
     var guard = 0;
-    while(opts.length < 4 && guard++ < 200){
-      var c = list[rnd(0, list.length-1)][answerIdx];
+    while(opts.length < 4 && guard++ < 300){
+      var src = list;
+      if(!step.sameTheme){
+        var other = pool[rnd(0, pool.length-1)];
+        src = WORDS[other];
+      }
+      var c = src[rnd(0, src.length-1)][answerIdx];
       if(opts.indexOf(c) === -1) opts.push(c);
     }
+    // רשת ביטחון: אם לא הצטברו ארבע, משלימים מהנושא עצמו
+    guard = 0;
+    while(opts.length < 4 && guard++ < 300){
+      var f = list[rnd(0, list.length-1)][answerIdx];
+      if(opts.indexOf(f) === -1) opts.push(f);
+    }
+
     for(var m=opts.length-1;m>0;m--){
       var n = rnd(0,m), t = opts[m]; opts[m] = opts[n]; opts[n] = t;
     }
@@ -849,6 +976,7 @@
     state.streak = 0;
     state.seen = {};
     setAccent(mode);
+    loadLevel();
     el.score.textContent = '0';
     el.clock.textContent = '0:00';
     updateStreak();
@@ -863,9 +991,9 @@
     var q, tries = 0;
     do{
       q = state.game === 'words'
-        ? makeWordQuestion(state.mode)
+        ? makeWordQuestion(state.mode, state.level)
         : (function(){
-            var ex = makeExercise(state.mode);
+            var ex = makeExercise(state.mode, state.level);
             return {
               key: ex.a + ex.op + ex.b,
               html: '<u>'+ex.a+'</u><s>'+SIGN[ex.op]+'</s><u>'+ex.b+'</u>',
@@ -882,6 +1010,7 @@
     state.index++;
 
     el.qNum.textContent = state.index;
+    el.level.textContent = state.level;
     el.progress.style.width = ((state.index-1)/TOTAL*100) + '%';
     el.feedback.textContent = '';
     el.feedback.className = 'feedback';
@@ -962,6 +1091,7 @@
     }
 
     updateStreak();
+    bumpLevel(right);
     el.progress.style.width = (state.index/TOTAL*100) + '%';
     setTimeout(nextQuestion, right ? 850 : 1500);
   }
@@ -975,6 +1105,7 @@
     state.streak = 0;
     state.seen = {};
     document.documentElement.style.setProperty('--accent', wmode === 'he2en' ? '#8B5CF6' : '#22D3EE');
+    loadLevel();
     el.score.textContent = '0';
     el.clock.textContent = '0:00';
     updateStreak();
@@ -1001,7 +1132,10 @@
     clockStop();
     if(state.player && state.score > 0){ Bank.add(state.player, state.score); }
     var pct = state.correct / TOTAL;
-    el.finalStats.textContent = state.correct + ' / ' + TOTAL + ' נכונות  ·  ' + fmt(state.elapsed);
+    var move = state.level > state.startLevel ? '  ·  עלית לרמה ' + state.level
+             : state.level < state.startLevel ? '  ·  רמה ' + state.level
+             : '  ·  רמה ' + state.level;
+    el.finalStats.textContent = state.correct + ' / ' + TOTAL + ' נכונות  ·  ' + fmt(state.elapsed) + move;
 
     if(pct === 1)       el.endTitle.textContent = 'מושלם. בלי טעות אחת.';
     else if(pct >= 0.8) el.endTitle.textContent = 'כמעט מושלם.';
