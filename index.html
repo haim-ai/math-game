@@ -224,7 +224,6 @@
     .sound{top:12px;bottom:auto;left:12px}
     /* שלושה צ'יפים חייבים להיכנס בשורה אחת */
     .bank{gap:4px;flex-wrap:nowrap;padding-inline:10px}
-    .bank-label{display:none}
     .chip{padding:6px 10px;font-size:.6rem;letter-spacing:.08em;gap:5px}
   }
 
@@ -276,10 +275,6 @@
     background:linear-gradient(to top, rgba(8,8,10,.94) 40%, transparent);
   }
   .bank[hidden]{display:none}
-  .bank-label{
-    font-size:.56rem;letter-spacing:.28em;color:var(--dim);opacity:.6;
-    margin-inline-end:6px;
-  }
   .chip{
     font-family:inherit;background:none;cursor:pointer;
     border:1px solid transparent;border-radius:999px;
@@ -303,7 +298,6 @@
   /* בתוך סבב ובמסך הסיום הצ'יפים הם תצוגה בלבד */
   .bank[data-locked="true"] .chip{opacity:.4}
   .bank[data-locked="true"] .chip[aria-pressed="true"]{opacity:1}
-  .bank[data-locked="true"] .bank-label{opacity:.3}
 
   .app{padding-bottom:34px}
 
@@ -418,9 +412,7 @@
 
 </main>
 
-<div class="bank" id="bank" aria-live="off">
-  <span class="bank-label">משחקת עכשיו</span>
-</div>
+<div class="bank" id="bank" aria-live="off"></div>
 
 <script src="words.js"></script>
 <script>
