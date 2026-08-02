@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="מלכת הלימודים – שני משחקי לימוד לילדים בני 8-15: תרגול לוח הכפל, חיבור וחיסור, ואוצר מילים באנגלית עם הקראה קולית.">
+<meta name="description" content="אלופי הלימודים – שני משחקי לימוד לילדים בני 8-15: תרגול לוח הכפל, חיבור וחיסור, ואוצר מילים באנגלית עם הקראה קולית.">
 <meta name="theme-color" content="#08080A">
-<title>מלכת הלימודים – משחקי חשבון ואנגלית לילדים</title>
+<title>אלופי הלימודים – משחקי חשבון ואנגלית לילדים</title>
 <link rel="preload" href="fonts/Polin-Bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/Polin-Extralight.woff2" as="font" type="font/woff2" crossorigin>
 <style>
@@ -92,7 +92,7 @@
   .gbtn svg{width:20px;height:20px;flex:none}
   .authnote{color:var(--dim);font-size:13px;min-height:1.2em;text-align:center;max-width:34ch}
 
-  /* ניהול משתתפות */
+  /* ניהול משתתפים */
   .account{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 20px;margin-top:32px}
   .account button{background:none;border:0;color:var(--dim);font:inherit;font-size:12.5px;cursor:pointer;
                   padding:6px 2px;transition:color .25s var(--ease)}
@@ -296,7 +296,7 @@
   body.speaking .replay svg{animation:pulse .8s var(--ease) infinite alternate}
   @keyframes pulse{from{opacity:.45}to{opacity:1}}
 
-  /* בחירת שחקנית */
+  /* בחירת משתתף */
   .players{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
     background:var(--line);border-block:1px solid var(--line);margin-bottom:34px}
   .player{
@@ -382,8 +382,8 @@
 
 <nav class="switcher" id="switcher" aria-label="ניווט">
   <ul>
-    <li><button data-game="math" aria-current="true">מלכת החשבון</button></li>
-    <li><button data-game="words" aria-current="false">מלכת האנגלית</button></li>
+    <li><button data-game="math" aria-current="true">אלופי החשבון</button></li>
+    <li><button data-game="words" aria-current="false">אלופי האנגלית</button></li>
   </ul>
 </nav>
 
@@ -391,8 +391,8 @@
 
   <!-- התחברות -->
   <section class="screen" id="screen-auth">
-    <p class="eyebrow">מלכת הלימודים</p>
-    <h1>ברוכות<br><em>הבאות</em></h1>
+    <p class="eyebrow">אלופי הלימודים</p>
+    <h1>ברוכים<br><em>הבאים</em></h1>
     <p class="lede">כניסה אחת, והנקודות נשמרות בכל מכשיר.</p>
     <div class="auth">
       <button class="gbtn" id="btnGoogle" type="button">
@@ -408,15 +408,15 @@
     </div>
   </section>
 
-  <!-- בחירת שחקנית -->
+  <!-- בחירת משתתף -->
   <section class="screen" id="screen-player" hidden>
-    <p class="eyebrow">מלכת הלימודים</p>
-    <h1>מי<br><em>את?</em></h1>
-    <p class="lede">הנקודות נצברות לכל אחת בנפרד.</p>
+    <p class="eyebrow">אלופי הלימודים</p>
+    <h1>מי<br><em>משחק?</em></h1>
+    <p class="lede">הנקודות נצברות לכל אחד בנפרד.</p>
     <div class="players" id="players"></div>
 
     <form class="padd" id="padd" hidden>
-      <input id="paddName" type="text" maxlength="20" placeholder="שם המשתתפת" aria-label="שם המשתתפת" required>
+      <input id="paddName" type="text" maxlength="20" placeholder="שם המשתתף" aria-label="שם המשתתף" required>
       <div class="swatches" id="paddColors" role="radiogroup" aria-label="צבע"></div>
       <div class="padd-actions">
         <button type="submit" id="paddOk">הוספה</button>
@@ -425,7 +425,7 @@
     </form>
 
     <p class="account">
-      <button type="button" id="btnAdd">+ הוספת משתתפת</button>
+      <button type="button" id="btnAdd">+ הוספת משתתף</button>
       <button type="button" id="btnManage">ניהול</button>
       <button type="button" id="btnOut">יציאה מהחשבון</button>
     </p>
@@ -434,7 +434,7 @@
   <!-- מסך פתיחה — חשבון -->
   <section class="screen" id="screen-start" hidden>
     <p class="eyebrow">תרגול חשבון</p>
-    <h1>מלכת<br><em>החשבון</em></h1>
+    <h1>אלופי<br><em>החשבון</em></h1>
     <p class="lede">עשר שאלות. רצף מכפיל. השעון מתקתק.</p>
     <div class="modes">
       <button class="mode" data-mode="mul"><span>×</span><b>כפל</b></button>
@@ -448,7 +448,7 @@
   <!-- מסך פתיחה — אנגלית -->
   <section class="screen" id="screen-start-words" hidden>
     <p class="eyebrow">תרגול אנגלית</p>
-    <h1>מלכת<br><em>האנגלית</em></h1>
+    <h1>אלופי<br><em>האנגלית</em></h1>
     <p class="lede">עשר מילים. רצף מכפיל. השעון מתקתק.</p>
     <div class="modes modes-2">
       <button class="mode" data-wmode="he2en"><span>א→A</span><b>עברית לאנגלית</b></button>
@@ -503,8 +503,8 @@
   var SIGN   = { mul:'×', add:'+', sub:'−' };
   var ACCENT = { mul:'#8B5CF6', add:'#A3E635', sub:'#FB923C', mix:'#22D3EE' };
 
-  // ---------- שחקניות וניקוד מצטבר ----------
-  // המשתתפות נטענות מהחשבון המחובר. עד ארבע, והתקרה נאכפת בדאטהבייס.
+  // ---------- משתתפים וניקוד מצטבר ----------
+  // המשתתפים נטענים מהחשבון המחובר. עד ארבע, והתקרה נאכפת בדאטהבייס.
   var PLAYERS = [];
   var PALETTE = ['#F472B6','#22D3EE','#FBBF24','#A3E635','#8B5CF6','#FB923C'];
   var STORE = 'smartkid.bank.v2';
@@ -994,7 +994,7 @@
     return opts;
   }
 
-  // שני הממשקים נבנים מרשימת המשתתפות של החשבון, ומחדש בכל שינוי
+  // שני הממשקים נבנים מרשימת המשתתפים של החשבון, ומחדש בכל שינוי
   var manage = false;
   var navEl = document.querySelector('nav');
 
@@ -1072,7 +1072,7 @@
   }
 
   function askRemove(p){
-    if(!confirm('למחוק את ' + p.name + '? הנקודות שלה יימחקו לצמיתות.')) return;
+    if(!confirm('למחוק את ' + p.name + '? הנקודות יימחקו לצמיתות.')) return;
     Bank.removePlayer(p.id).then(function(){
       if(state.player === p.id){ state.player = null; showScreen('player'); }
     }).catch(function(){ alert('לא הצלחנו למחוק. יש רשת?'); });
@@ -1414,7 +1414,7 @@
   }
 
   // ---------- תפריט מעבר בין משחקים ----------
-  var gameNames = { math:'מלכת החשבון', words:'מלכת האנגלית' };
+  var gameNames = { math:'אלופי החשבון', words:'אלופי האנגלית' };
 
   document.querySelectorAll('[data-game]').forEach(function(b){
     b.addEventListener('click', function(e){
@@ -1444,7 +1444,7 @@
     }
   });
 
-  // ---------- ניהול משתתפות ----------
+  // ---------- ניהול משתתפים ----------
   var addColor = PALETTE[0];
 
   PALETTE.forEach(function(c, i){
@@ -1483,8 +1483,8 @@
       .catch(function(err){
         var s = String(err);
         el.paddName.focus();
-        alert(s.indexOf('MAX_PLAYERS') > -1 ? 'אפשר עד ארבע משתתפות.'
-            : s.indexOf('players_owner_id_name_key') > -1 ? 'כבר יש משתתפת בשם הזה.'
+        alert(s.indexOf('MAX_PLAYERS') > -1 ? 'אפשר עד ארבעה משתתפים.'
+            : s.indexOf('players_owner_id_name_key') > -1 ? 'כבר יש משתתף בשם הזה.'
             : 'לא הצלחנו להוסיף. יש רשת?');
       });
   });
@@ -1501,7 +1501,7 @@
 
   el.btnGoogle.addEventListener('click', function(){
     el.btnGoogle.disabled = true;
-    el.authNote.textContent = 'מעבירים אתכן לגוגל…';
+    el.authNote.textContent = 'מעבירים אתכם לגוגל…';
     Auth.signIn();
   });
 
