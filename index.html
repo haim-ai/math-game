@@ -80,6 +80,52 @@
 
   .app{position:relative;z-index:3;width:100%;max-width:760px;text-align:center}
   .screen[hidden]{display:none}
+
+  /* התחברות */
+  .auth{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:36px}
+  .gbtn{display:inline-flex;align-items:center;gap:12px;padding:15px 26px;border-radius:999px;
+        border:1px solid rgba(244,244,246,.16);background:rgba(244,244,246,.04);color:var(--ink);
+        font:inherit;font-size:16px;cursor:pointer;
+        transition:border-color .3s var(--ease),background .3s var(--ease),transform .3s var(--ease)}
+  .gbtn:hover{border-color:rgba(244,244,246,.42);background:rgba(244,244,246,.08);transform:translateY(-2px)}
+  .gbtn[disabled]{opacity:.5;cursor:default;transform:none}
+  .gbtn svg{width:20px;height:20px;flex:none}
+  .authnote{color:var(--dim);font-size:13px;min-height:1.2em;text-align:center;max-width:34ch}
+
+  /* ניהול משתתפות */
+  .account{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 20px;margin-top:32px}
+  .account button{background:none;border:0;color:var(--dim);font:inherit;font-size:12.5px;cursor:pointer;
+                  padding:6px 2px;transition:color .25s var(--ease)}
+  .account button:hover{color:var(--ink)}
+  .account button[hidden]{display:none}
+
+  .padd{display:flex;flex-direction:column;gap:16px;align-items:center;margin-top:28px;
+        animation:rise .5s var(--ease) both}
+  .padd[hidden]{display:none}
+  .padd input{width:min(280px,80vw);padding:13px 18px;border-radius:14px;text-align:center;
+              border:1px solid rgba(244,244,246,.16);background:rgba(244,244,246,.04);
+              color:var(--ink);font:inherit;font-size:16px}
+  .padd input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-color:transparent}
+  .swatches{display:flex;gap:10px}
+  .swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;
+          background:var(--s);transition:transform .2s var(--ease),border-color .2s var(--ease)}
+  .swatch:hover{transform:scale(1.12)}
+  .swatch[aria-checked="true"]{border-color:var(--ink);transform:scale(1.12)}
+  .padd-actions{display:flex;gap:10px}
+  .padd-actions button{padding:11px 22px;border-radius:999px;border:1px solid rgba(244,244,246,.16);
+                       background:none;color:var(--ink);font:inherit;font-size:14px;cursor:pointer;
+                       transition:border-color .25s var(--ease),background .25s var(--ease)}
+  .padd-actions button:hover{border-color:rgba(244,244,246,.42);background:rgba(244,244,246,.06)}
+  .padd-actions #paddOk{background:var(--accent);border-color:transparent;color:#08080A}
+
+  .pcell{background:var(--bg);display:flex;flex-direction:column}
+  .pcell .player{flex:1}
+  .players[data-manage="true"] .player{cursor:default}
+  .prow{display:flex;gap:8px;justify-content:center;margin-top:10px}
+  .prow button{background:none;border:0;color:var(--dim);font:inherit;font-size:12px;cursor:pointer;
+               padding:4px 8px;border-radius:8px;transition:color .2s var(--ease),background .2s var(--ease)}
+  .prow button:hover{color:var(--ink);background:rgba(244,244,246,.07)}
+  .prow[hidden]{display:none}
   .screen{animation:rise .7s var(--ease) both}
 
   .eyebrow{
@@ -343,12 +389,46 @@
 
 <main class="app">
 
+  <!-- התחברות -->
+  <section class="screen" id="screen-auth">
+    <p class="eyebrow">מלכת הלימודים</p>
+    <h1>ברוכות<br><em>הבאות</em></h1>
+    <p class="lede">כניסה אחת, והנקודות נשמרות בכל מכשיר.</p>
+    <div class="auth">
+      <button class="gbtn" id="btnGoogle" type="button">
+        <svg viewBox="0 0 18 18" aria-hidden="true">
+          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.97 10.72a5.4 5.4 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33z"/>
+          <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+        </svg>
+        <span>כניסה עם Google</span>
+      </button>
+      <p class="authnote" id="authNote" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
   <!-- בחירת שחקנית -->
-  <section class="screen" id="screen-player">
+  <section class="screen" id="screen-player" hidden>
     <p class="eyebrow">מלכת הלימודים</p>
     <h1>מי<br><em>את?</em></h1>
     <p class="lede">הנקודות נצברות לכל אחת בנפרד.</p>
     <div class="players" id="players"></div>
+
+    <form class="padd" id="padd" hidden>
+      <input id="paddName" type="text" maxlength="20" placeholder="שם המשתתפת" aria-label="שם המשתתפת" required>
+      <div class="swatches" id="paddColors" role="radiogroup" aria-label="צבע"></div>
+      <div class="padd-actions">
+        <button type="submit" id="paddOk">הוספה</button>
+        <button type="button" id="paddCancel">ביטול</button>
+      </div>
+    </form>
+
+    <p class="account">
+      <button type="button" id="btnAdd">+ הוספת משתתפת</button>
+      <button type="button" id="btnManage">ניהול</button>
+      <button type="button" id="btnOut">יציאה מהחשבון</button>
+    </p>
   </section>
 
   <!-- מסך פתיחה — חשבון -->
@@ -424,111 +504,207 @@
   var ACCENT = { mul:'#8B5CF6', add:'#A3E635', sub:'#FB923C', mix:'#22D3EE' };
 
   // ---------- שחקניות וניקוד מצטבר ----------
-  // הוספת שחקנית: שורה כאן + שורה בטבלת scores ב-Supabase. שאר הממשק נבנה מכאן.
-  var PLAYERS = [
-    { name:'שני',   color:'#F472B6' },
-    { name:'אגם',   color:'#22D3EE' },
-    { name:'אוסנת', color:'#FBBF24' }
-  ];
-  var NAMES = PLAYERS.map(function(p){ return p.name; });
-  var STORE = 'mathgame.bank.v1';
+  // המשתתפות נטענות מהחשבון המחובר. עד ארבע, והתקרה נאכפת בדאטהבייס.
+  var PLAYERS = [];
+  var PALETTE = ['#F472B6','#22D3EE','#FBBF24','#A3E635','#8B5CF6','#FB923C'];
+  var STORE = 'smartkid.bank.v2';
+  var AUTH_STORE = 'smartkid.auth.v1';
 
   // Supabase הוא מקור האמת; localStorage הוא מטמון שמאפשר לשחק גם בלי רשת.
   var SUPA_URL = 'https://sgqccebnzmfcncwppyjb.supabase.co';
   var SUPA_KEY = 'sb_publishable_rL4hBLsVAX25UpmMCYa14A_W-AFcqzq';
 
+  // ---------- אימות ----------
+  var Auth = (function(){
+    var session = null;
+
+    try{ session = JSON.parse(localStorage.getItem(AUTH_STORE) || 'null'); }catch(e){}
+
+    function save(s){
+      session = s;
+      try{
+        if(s) localStorage.setItem(AUTH_STORE, JSON.stringify(s));
+        else  localStorage.removeItem(AUTH_STORE);
+      }catch(e){}
+    }
+
+    // חוזרים מגוגל עם הטוקנים ב-hash. קוראים אותם ומנקים את הכתובת מיד.
+    function absorbHash(){
+      if(location.hash.indexOf('access_token=') === -1) return false;
+      var q = new URLSearchParams(location.hash.slice(1));
+      save({
+        access_token:  q.get('access_token'),
+        refresh_token: q.get('refresh_token'),
+        expires_at:    Date.now() + (parseInt(q.get('expires_in'), 10) || 3600) * 1000
+      });
+      history.replaceState(null, '', location.pathname + location.search);
+      return true;
+    }
+
+    function refresh(){
+      if(!session || !session.refresh_token) return Promise.reject('no-session');
+      return fetch(SUPA_URL + '/auth/v1/token?grant_type=refresh_token', {
+        method:'POST',
+        headers:{ apikey:SUPA_KEY, 'Content-Type':'application/json' },
+        body: JSON.stringify({ refresh_token: session.refresh_token })
+      })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function(d){
+        save({ access_token:d.access_token, refresh_token:d.refresh_token,
+               expires_at: Date.now() + (d.expires_in || 3600) * 1000 });
+        return session;
+      })
+      .catch(function(e){ save(null); return Promise.reject(e); });
+    }
+
+    return {
+      absorbHash: absorbHash,
+      has: function(){ return !!(session && session.access_token); },
+      token: function(){ return session ? session.access_token : null; },
+
+      // מחזיר טוקן תקף, ומרענן אם נותרו פחות משתי דקות
+      ready: function(){
+        if(!session) return Promise.reject('no-session');
+        if(session.expires_at - Date.now() < 120000) return refresh();
+        return Promise.resolve(session);
+      },
+
+      signIn: function(){
+        var back = location.origin + location.pathname;
+        location.href = SUPA_URL + '/auth/v1/authorize?provider=google&redirect_to=' +
+                        encodeURIComponent(back);
+      },
+
+      signOut: function(){
+        var t = session && session.access_token;
+        save(null);
+        try{ localStorage.removeItem(STORE); }catch(e){}
+        if(t){
+          fetch(SUPA_URL + '/auth/v1/logout', {
+            method:'POST', headers:{ apikey:SUPA_KEY, Authorization:'Bearer ' + t }
+          }).catch(function(){});
+        }
+        location.reload();
+      }
+    };
+  })();
+
   var Bank = (function(){
     var data = {}, levels = {};
-    NAMES.forEach(function(n){ data[n] = 0; levels[n] = {}; });
     var onChange = null;
 
+    // מטמון מקומי: מאפשר לשחק ולראות ניקוד גם כשאין רשת
     try{
-      var raw = localStorage.getItem(STORE);
-      if(raw){
-        var p = JSON.parse(raw);
-        NAMES.forEach(function(n){
-          if(typeof p[n] === 'number') data[n] = p[n];
-          else if(p[n] && typeof p[n] === 'object'){
-            if(typeof p[n].points === 'number') data[n] = p[n].points;
-            if(p[n].levels) levels[n] = p[n].levels;
-          }
-        });
-        if(p.__levels) NAMES.forEach(function(n){ if(p.__levels[n]) levels[n] = p.__levels[n]; });
+      var cached = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if(cached && cached.players){
+        PLAYERS = cached.players;
+        PLAYERS.forEach(function(p){ data[p.id] = p.points || 0; levels[p.id] = p.levels || {}; });
       }
     }catch(e){}
 
     function persist(){
-      var out = {};
-      NAMES.forEach(function(n){ out[n] = data[n]; });
-      out.__levels = levels;
-      try{ localStorage.setItem(STORE, JSON.stringify(out)); }catch(e){}
+      try{
+        localStorage.setItem(STORE, JSON.stringify({ players: PLAYERS.map(function(p){
+          return { id:p.id, name:p.name, color:p.color, points:data[p.id]||0, levels:levels[p.id]||{} };
+        })}));
+      }catch(e){}
     }
 
-    function headers(extra){
-      var h = { apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY };
-      if(extra) for(var k in extra) h[k] = extra[k];
-      return h;
+    function req(path, opts){
+      return Auth.ready().then(function(){
+        var o = opts || {}, h = { apikey: SUPA_KEY, Authorization: 'Bearer ' + Auth.token() };
+        if(o.body) h['Content-Type'] = 'application/json';
+        if(o.headers) for(var k in o.headers) h[k] = o.headers[k];
+        return fetch(SUPA_URL + path, { method: o.method || 'GET', headers: h, body: o.body });
+      }).then(function(r){
+        if(!r.ok) return r.text().then(function(t){ return Promise.reject(t || r.status); });
+        return r.status === 204 ? null : r.json();
+      });
     }
 
-    function pull(){
-      return fetch(SUPA_URL + '/rest/v1/scores?select=player,points,levels', { headers: headers() })
-        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
-        .then(function(rows){
-          rows.forEach(function(row){
-            if(NAMES.indexOf(row.player) === -1) return;
-            data[row.player] = row.points;
-            if(row.levels && typeof row.levels === 'object') levels[row.player] = row.levels;
-          });
-          persist();
-          if(onChange) onChange();
-        })
-        .catch(function(){ /* אופליין — נשארים עם המטמון */ });
+    function absorb(rows){
+      PLAYERS = rows.map(function(r){ return { id:r.id, name:r.name, color:r.color, slot:r.slot }; });
+      rows.forEach(function(r){ data[r.id] = r.points; levels[r.id] = r.levels || {}; });
+      persist();
     }
 
     var levelTimer = null, levelQueue = {};
 
     return {
-      get: function(name){ return data[name] || 0; },
+      list: function(){ return PLAYERS; },
+      byId: function(id){ for(var i=0;i<PLAYERS.length;i++) if(PLAYERS[i].id===id) return PLAYERS[i]; return null; },
+      get: function(id){ return data[id] || 0; },
       onChange: function(fn){ onChange = fn; },
-      sync: pull,
+      full: function(){ return PLAYERS.length >= 4; },
 
-      getLevel: function(name, key){
-        var v = levels[name] && levels[name][key];
+      load: function(){
+        return req('/rest/v1/players?select=id,name,color,slot,points,levels&order=slot')
+          .then(function(rows){ absorb(rows); if(onChange) onChange(); return PLAYERS; });
+      },
+
+      addPlayer: function(name, color){
+        return req('/rest/v1/rpc/player_add', {
+          method:'POST', body: JSON.stringify({ p_name:name, p_color:color })
+        }).then(function(row){
+          PLAYERS.push({ id:row.id, name:row.name, color:row.color, slot:row.slot });
+          data[row.id] = 0; levels[row.id] = {};
+          persist(); if(onChange) onChange();
+          return row;
+        });
+      },
+
+      renamePlayer: function(id, name){
+        return req('/rest/v1/players?id=eq.' + id, {
+          method:'PATCH', headers:{ Prefer:'return=minimal' }, body: JSON.stringify({ name:name })
+        }).then(function(){
+          var p = Bank.byId(id); if(p) p.name = name;
+          persist(); if(onChange) onChange();
+        });
+      },
+
+      removePlayer: function(id){
+        return req('/rest/v1/players?id=eq.' + id, { method:'DELETE', headers:{ Prefer:'return=minimal' } })
+          .then(function(){
+            PLAYERS = PLAYERS.filter(function(p){ return p.id !== id; });
+            delete data[id]; delete levels[id];
+            persist(); if(onChange) onChange();
+          });
+      },
+
+      getLevel: function(id, key){
+        var v = levels[id] && levels[id][key];
         return typeof v === 'number' ? Math.min(Math.max(v,1),8) : 1;
       },
-      setLevel: function(name, key, level){
-        if(!levels[name]) levels[name] = {};
-        levels[name][key] = level;
+
+      setLevel: function(id, key, level){
+        if(!levels[id]) levels[id] = {};
+        levels[id][key] = level;
         persist();
         // הרמה משתנה אחרי כל שאלה; שולחים לשרת בהשהיה כדי לא להציף אותו
-        levelQueue[name + '|' + key] = { name:name, key:key, level:level };
+        levelQueue[id + '|' + key] = { id:id, key:key, level:level };
         clearTimeout(levelTimer);
         levelTimer = setTimeout(function(){
           var pending = levelQueue; levelQueue = {};
           Object.keys(pending).forEach(function(k){
             var it = pending[k];
-            fetch(SUPA_URL + '/rest/v1/rpc/set_level', {
-              method: 'POST',
-              headers: headers({ 'Content-Type': 'application/json' }),
-              body: JSON.stringify({ p_player: it.name, p_key: it.key, p_level: it.level })
+            req('/rest/v1/rpc/player_set_level', {
+              method:'POST',
+              body: JSON.stringify({ p_id: it.id, p_key: it.key, p_level: it.level })
             }).catch(function(){});
           });
         }, 1200);
       },
 
-      add: function(name, points){
+      add: function(id, points){
         // מעדכנים מיד מקומית כדי שהמסך יגיב, ומיישרים מול השרת כשהוא עונה
-        data[name] = (data[name] || 0) + points;
+        data[id] = (data[id] || 0) + points;
         persist();
         if(onChange) onChange();
-        fetch(SUPA_URL + '/rest/v1/rpc/add_points', {
-          method: 'POST',
-          headers: headers({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ p_player: name, p_points: points })
+        req('/rest/v1/rpc/player_add_points', {
+          method:'POST', body: JSON.stringify({ p_id:id, p_points:points })
         })
-        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
         .then(function(total){
-          if(typeof total === 'number'){ data[name] = total; persist(); if(onChange) onChange(); }
+          if(typeof total === 'number'){ data[id] = total; persist(); if(onChange) onChange(); }
         })
         .catch(function(){ /* נשאר מקומי; יסונכרן בכניסה הבאה */ });
       }
@@ -700,9 +876,19 @@
   })();
 
   var el = {
+    auth:    document.getElementById('screen-auth'),
+    btnGoogle: document.getElementById('btnGoogle'),
+    authNote:  document.getElementById('authNote'),
     player:  document.getElementById('screen-player'),
     players: document.getElementById('players'),
     bank:    document.getElementById('bank'),
+    btnAdd:    document.getElementById('btnAdd'),
+    btnManage: document.getElementById('btnManage'),
+    btnOut:    document.getElementById('btnOut'),
+    padd:       document.getElementById('padd'),
+    paddName:   document.getElementById('paddName'),
+    paddColors: document.getElementById('paddColors'),
+    paddCancel: document.getElementById('paddCancel'),
     start:  document.getElementById('screen-start'),
     startW: document.getElementById('screen-start-words'),
     game:   document.getElementById('screen-game'),
@@ -808,49 +994,93 @@
     return opts;
   }
 
-  // בניית שני הממשקים מרשימת השחקניות
-  var pickerNodes = {}, chipNodes = {};
+  // שני הממשקים נבנים מרשימת המשתתפות של החשבון, ומחדש בכל שינוי
+  var manage = false;
+  var navEl = document.querySelector('nav');
 
-  PLAYERS.forEach(function(p){
-    var btn = document.createElement('button');
-    btn.className = 'player';
-    btn.type = 'button';
-    btn.style.setProperty('--m', p.color);
-    btn.innerHTML = '<span>' + p.name + '</span><small></small>';
-    btn.addEventListener('click', function(){ Sound.start(); enterAs(p.name); });
-    btn.addEventListener('mouseenter', function(){ Sound.play('hover'); });
-    el.players.appendChild(btn);
-    pickerNodes[p.name] = btn.querySelector('small');
+  function actionBtn(label, fn){
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = label;
+    b.addEventListener('click', fn);
+    return b;
+  }
 
-    var chip = document.createElement('button');
-    chip.className = 'chip';
-    chip.type = 'button';
-    chip.style.setProperty('--m', p.color);
-    chip.addEventListener('click', function(){ Sound.play('hover'); setPlayer(p.name); });
-    el.bank.appendChild(chip);
-    chipNodes[p.name] = chip;
-  });
+  function renderPlayers(){
+    el.players.innerHTML = '';
+    el.players.dataset.manage = manage ? 'true' : 'false';
 
-  function renderBank(){
+    Bank.list().forEach(function(p){
+      var cell = document.createElement('div');
+      cell.className = 'pcell';
+
+      var btn = document.createElement('button');
+      btn.className = 'player';
+      btn.type = 'button';
+      btn.style.setProperty('--m', p.color);
+      btn.innerHTML = '<span></span><small></small>';
+      btn.querySelector('span').textContent = p.name;
+      btn.querySelector('small').textContent = Bank.get(p.id) + ' נקודות';
+      btn.addEventListener('click', function(){ if(!manage){ Sound.start(); enterAs(p.id); } });
+      btn.addEventListener('mouseenter', function(){ if(!manage) Sound.play('hover'); });
+      cell.appendChild(btn);
+
+      var row = document.createElement('p');
+      row.className = 'prow';
+      row.hidden = !manage;
+      row.appendChild(actionBtn('שינוי שם', function(){ askRename(p); }));
+      row.appendChild(actionBtn('מחיקה',    function(){ askRemove(p); }));
+      cell.appendChild(row);
+
+      el.players.appendChild(cell);
+    });
+
+    el.btnAdd.hidden = Bank.full() || manage;
+    el.btnManage.hidden = !Bank.list().length;
+    el.btnManage.textContent = manage ? 'סיום' : 'ניהול';
+  }
+
+  function renderChips(){
     // החלפה מותרת רק ממסך הפתיחה — לא באמצע סבב ולא במסך הסיום
     var canSwitch = state.screen === 'start';
+    el.bank.innerHTML = '';
     el.bank.dataset.locked = canSwitch ? 'false' : 'true';
-    PLAYERS.forEach(function(p){
-      var pts = Bank.get(p.name), on = state.player === p.name;
-      pickerNodes[p.name].textContent = pts + ' נקודות';
-      var chip = chipNodes[p.name];
-      chip.innerHTML = '<em></em>' + p.name + ' <b>' + pts + '</b>';
+    Bank.list().forEach(function(p){
+      var pts = Bank.get(p.id), on = state.player === p.id;
+      var chip = document.createElement('button');
+      chip.className = 'chip';
+      chip.type = 'button';
+      chip.style.setProperty('--m', p.color);
+      chip.innerHTML = '<em></em>';
+      chip.appendChild(document.createTextNode(p.name + ' '));
+      var b = document.createElement('b'); b.textContent = pts;
+      chip.appendChild(b);
       chip.setAttribute('aria-pressed', on ? 'true' : 'false');
       chip.disabled = !canSwitch || on;
-      chip.setAttribute('aria-label',
-        on ? p.name + ', משחקת עכשיו'
-           : (canSwitch ? 'מעבר ל' + p.name : p.name + ', ניקוד ' + pts));
+      chip.setAttribute('aria-label', canSwitch && !on ? 'מעבר ל' + p.name
+                                                       : p.name + ', ניקוד ' + pts);
+      chip.addEventListener('click', function(){ Sound.play('hover'); setPlayer(p.id); });
+      el.bank.appendChild(chip);
     });
   }
 
+  function renderBank(){ renderPlayers(); renderChips(); }
+
+  function askRename(p){
+    var name = (prompt('שם חדש ל' + p.name, p.name) || '').trim();
+    if(!name || name === p.name) return;
+    Bank.renamePlayer(p.id, name.slice(0,20)).catch(function(){ alert('לא הצלחנו לשמור. יש רשת?'); });
+  }
+
+  function askRemove(p){
+    if(!confirm('למחוק את ' + p.name + '? הנקודות שלה יימחקו לצמיתות.')) return;
+    Bank.removePlayer(p.id).then(function(){
+      if(state.player === p.id){ state.player = null; showScreen('player'); }
+    }).catch(function(){ alert('לא הצלחנו למחוק. יש רשת?'); });
+  }
+
   // כניסה ראשונה ממסך הבחירה
-  function enterAs(name){
-    state.player = name;
+  function enterAs(id){
+    state.player = id;
     state.game = 'math';
     document.querySelectorAll('[data-game]').forEach(function(o){
       o.setAttribute('aria-current', o.getAttribute('data-game') === 'math' ? 'true' : 'false');
@@ -860,24 +1090,26 @@
   }
 
   // החלפה תוך כדי, מהשורה התחתונה
-  function setPlayer(name){
-    if(state.player === name) return;
-    state.player = name;
+  function setPlayer(id){
+    if(state.player === id) return;
+    state.player = id;
     state.locked = true;
     clockStop();
-    renderBank();
     showScreen('start');
   }
 
   function showScreen(name){
     state.screen = name;
     var isStart = name === 'start';
+    var gate = (name === 'auth' || name === 'player');
+    el.auth.hidden   = name !== 'auth';
     el.player.hidden = name !== 'player';
     el.start.hidden  = !(isStart && state.game === 'math');
     el.startW.hidden = !(isStart && state.game === 'words');
     el.game.hidden   = name !== 'game';
     el.end.hidden    = name !== 'end';
-    el.bank.hidden   = name === 'player';
+    el.bank.hidden   = gate;
+    if(navEl) navEl.hidden = gate;
     renderBank();
   }
 
@@ -1212,9 +1444,88 @@
     }
   });
 
+  // ---------- ניהול משתתפות ----------
+  var addColor = PALETTE[0];
+
+  PALETTE.forEach(function(c, i){
+    var s = document.createElement('button');
+    s.className = 'swatch';
+    s.type = 'button';
+    s.style.setProperty('--s', c);
+    s.setAttribute('role', 'radio');
+    s.setAttribute('aria-checked', i === 0 ? 'true' : 'false');
+    s.setAttribute('aria-label', 'צבע ' + (i + 1));
+    s.addEventListener('click', function(){
+      addColor = c;
+      el.paddColors.querySelectorAll('.swatch').forEach(function(o){
+        o.setAttribute('aria-checked', o === s ? 'true' : 'false');
+      });
+    });
+    el.paddColors.appendChild(s);
+  });
+
+  function closeAdd(){ el.padd.hidden = true; el.paddName.value = ''; renderBank(); }
+
+  el.btnAdd.addEventListener('click', function(){
+    el.padd.hidden = false;
+    el.btnAdd.hidden = true;
+    el.paddName.focus();
+  });
+
+  el.paddCancel.addEventListener('click', closeAdd);
+
+  el.padd.addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = el.paddName.value.trim();
+    if(!name) return;
+    Bank.addPlayer(name.slice(0, 20), addColor)
+      .then(closeAdd)
+      .catch(function(err){
+        var s = String(err);
+        el.paddName.focus();
+        alert(s.indexOf('MAX_PLAYERS') > -1 ? 'אפשר עד ארבע משתתפות.'
+            : s.indexOf('players_owner_id_name_key') > -1 ? 'כבר יש משתתפת בשם הזה.'
+            : 'לא הצלחנו להוסיף. יש רשת?');
+      });
+  });
+
+  el.btnManage.addEventListener('click', function(){
+    manage = !manage;
+    if(manage){ el.padd.hidden = true; }
+    renderBank();
+  });
+
+  el.btnOut.addEventListener('click', function(){
+    if(confirm('לצאת מהחשבון?')) Auth.signOut();
+  });
+
+  el.btnGoogle.addEventListener('click', function(){
+    el.btnGoogle.disabled = true;
+    el.authNote.textContent = 'מעבירים אתכן לגוגל…';
+    Auth.signIn();
+  });
+
+  // ---------- הפעלה ----------
   Bank.onChange(renderBank);
-  showScreen('player');
-  Bank.sync();
+
+  Auth.absorbHash();
+
+  if(!Auth.has()){
+    showScreen('auth');
+  }else{
+    showScreen('player');
+    Bank.load()
+      .then(function(list){
+        if(!list.length){ el.padd.hidden = false; el.btnAdd.hidden = true; el.paddName.focus(); }
+      })
+      .catch(function(){
+        // אין רשת או שהסשן פג. אם יש מטמון ממשיכים איתו; אחרת חוזרים להתחברות.
+        if(!Bank.list().length){
+          el.authNote.textContent = 'צריך להתחבר שוב.';
+          showScreen('auth');
+        }
+      });
+  }
 
 })();
 </script>
